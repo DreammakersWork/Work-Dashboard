@@ -586,8 +586,11 @@ const firstOf=kind=>(STS().find(s=>s.kind===kind)||{}).key;
 const isLate=t=>isOpen(t)&&t.due&&t.due<T;
 /* 지연 완료: 완료 체크한 날(completedAt)이 마감일보다 늦으면, 실제로 끝난 날까지 일정을 늘려 보여 줍니다 */
 const doneDay=t=>t.completedAt?ymd(new Date(t.completedAt)):"";
-const isLateDone=t=>isDone(t)&&!!t.due&&!!t.completedAt&&doneDay(t)>t.due;
-const lateDays=t=>Math.round((pd(doneDay(t))-pd(t.due))/864e5);
+/* 지연 일수는 평일만 셉니다 (마감 다음 날부터 완료일까지, 토·일 제외) */
+const isWeekend=d=>d.getDay()===0||d.getDay()===6;
+const bizDays=(a,b)=>{let n=0;for(let d=addDays(pd(a),1);ymd(d)<=b;d=addDays(d,1))if(!isWeekend(d))n++;return n};
+const lateDays=t=>bizDays(t.due,doneDay(t));
+const isLateDone=t=>isDone(t)&&!!t.due&&!!t.completedAt&&doneDay(t)>t.due&&lateDays(t)>0;
 const startOf=t=>hasSpan(t)?t.start:t.due;
 const endOf=t=>isLateDone(t)?doneDay(t):t.due;
 const showSpan=t=>hasSpan(t)||isLateDone(t);
@@ -787,7 +790,7 @@ function vCal(){
     let rows=[];for(let l=0;l<nL;l++){const g=here.find(x=>x.l===l);
       if(!g){rows.push(`<span class="chip sp" aria-hidden="true"></span>`);continue}
       const t=g.t,first=k===g.a,last=k===g.b;
-      const ext=isLateDone(t)&&k>t.due;
+      const ext=isLateDone(t)&&k>t.due&&!isWeekend(pd(k));
       rows.push(`<span class="chip cbar${first?" bs":""}${last?" be":""}${isDone(t)?" done":""}${ext?" ext":""}" style="--pc:${chipColor(t)}" data-task="${esc(t.id)}" title="${esc(t.title)} (${esc(isLateDone(t)?lateDoneStr(t):spanStr(t))})">${first?esc(t.title):"&nbsp;"}</span>`)}
     /* 빈 줄은 뒤에서부터 정리하고, 남는 자리에 하루짜리 업무를 넣습니다 */
     while(rows.length&&rows[rows.length-1].includes(" sp\""))rows.pop();
