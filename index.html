@@ -594,6 +594,9 @@ const isLateDone=t=>isDone(t)&&!!t.due&&!!t.completedAt&&doneDay(t)>t.due&&lateD
 const startOf=t=>hasSpan(t)?t.start:t.due;
 const endOf=t=>isLateDone(t)?doneDay(t):t.due;
 const showSpan=t=>hasSpan(t)||isLateDone(t);
+/* 기간 막대는 평일에만 그립니다. 기간 전체가 주말뿐이면 그대로 표시 */
+const hasWeekday=t=>{for(let d=pd(startOf(t));ymd(d)<=endOf(t);d=addDays(d,1))if(!isWeekend(d))return true;return false};
+const offDay=(t,k)=>isWeekend(pd(k))&&hasWeekday(t);
 const lateDoneStr=t=>isLateDone(t)?"마감 "+fmtMD(t.due)+" → "+fmtMD(doneDay(t))+" 완료 ("+lateDays(t)+"일 지연)":"";
 const byDue=(a,b)=>((a.due||"9")+(a.time||"99")).localeCompare((b.due||"9")+(b.time||"99"));
 const timeStr=t=>t.time?(t.endTime?t.time+"~"+t.endTime:t.time):"";
@@ -697,10 +700,10 @@ function vHome(){
     return `<div class="wkday ${cls}"><div class="wkd"><b>${d.getDate()}</b><span>${WD[d.getDay()]}</span>${k===T?`<em>오늘</em>`:""}</div>${its.map(wkItem).join("")}</div>`};
   /* 이번 주에 걸친 기간 업무를 요일 칸 위에 시작일~마감일 막대로 표시 */
   const wkSpans=S.tasks.filter(t=>showSpan(t)&&!isHold(t)&&(isOpen(t)||isDone(t))&&startOf(t)<=we&&endOf(t)>=ws).sort((a,b)=>startOf(a).localeCompare(startOf(b))||byDue(a,b));
-  const spanRow=wkSpans.length?`<div class="wkspan" aria-label="이번 주 기간 업무">${wkSpans.map(t=>{const s0=startOf(t),e0=endOf(t),a=s0>ws?s0:ws,b=e0<we?e0:we;
+  const spanRow=wkSpans.length?`<div class="wkspan" aria-label="이번 주 기간 업무">${wkSpans.map(t=>{const s0=startOf(t),e0=endOf(t),hi=hasWeekday(t)?ymd(addDays(pd(ws),4)):we,a=s0>ws?s0:ws,b=e0<hi?e0:hi;if(a>b)return "";
     const c0=Math.round((pd(a)-pd(ws))/864e5)+1,c1=Math.round((pd(b)-pd(ws))/864e5)+2;const done=isDone(t),ld=isLateDone(t);
     const lp=ld?Math.max(0,Math.min(100,Math.round((Math.round((pd(t.due)-pd(a))/864e5)+1)/(c1-c0)*100))):100;
-    return `<button type="button" class="sbar ${s0<ws?"cont-l":""} ${e0>we?"cont-r":""} ${done?"done":""} ${ld?"ldone":""}" style="grid-column:${c0}/${c1};--pc:${isLate(t)?"var(--c-red)":cvar(stOf(t.status).color)};--lp:${lp}%" data-task="${esc(t.id)}" title="${esc(ld?lateDoneStr(t):spanStr(t))}"><span class="nm">${t.important?"★ ":""}${esc(t.title)}</span><small>${esc(ld?"지연 완료 +"+lateDays(t)+"일":spanStr(t))}</small></button>`}).join("")}</div>`:"";
+    return `<button type="button" class="sbar ${s0<ws?"cont-l":""} ${e0>b?"cont-r":""} ${done?"done":""} ${ld?"ldone":""}" style="grid-column:${c0}/${c1};--pc:${isLate(t)?"var(--c-red)":cvar(stOf(t.status).color)};--lp:${lp}%" data-task="${esc(t.id)}" title="${esc(ld?lateDoneStr(t):spanStr(t))}"><span class="nm">${t.important?"★ ":""}${esc(t.title)}</span><small>${esc(ld?"지연 완료 +"+lateDays(t)+"일":spanStr(t))}</small></button>`}).join("")}</div>`:"";
   const rtDone=routines.filter(r=>rw[r]).length;
   const rtRow=pn.routines?`<div class="wkrt"><b>정기 업무 <span class="muted">${rtDone}/${routines.length}</span></b>${routines.length?routines.map(r=>`<button type="button" class="rtchip ${rw[r]?"on":""}" data-routine="${esc(r)}" aria-pressed="${rw[r]?"true":"false"}">${esc(r)}</button>`).join(""):`<span class="muted">매주 반복하는 일을 등록하면 여기서 체크할 수 있어요.</span>`}<button class="btn sm" data-act="editRoutines">${routines.length?"편집":"등록"}</button></div>`:"";
   const upItem=t=>{const d=t.due?pd(t.due):null;
@@ -772,15 +775,16 @@ function vCal(){
     if(!showSpan(t)){(byDay[t.due]=byDay[t.due]||[]).push(t);return}
     /* 기간 업무는 시작일부터 마감일까지 매일 표시 (지연 완료는 완료한 날까지, 보이는 달력 범위만) */
     const s0=startOf(t),e0=endOf(t),from=s0>gs?s0:gs,to=e0<ge?e0:ge;
-    for(let d=pd(from);ymd(d)<=to;d=addDays(d,1)){const k=ymd(d);(byDay[k]=byDay[k]||[]).push(t)}});
-  const sel0=S.selDay||T;if(sel0<gs||sel0>ge)S.tasks.forEach(t=>{if(t.due&&!isHold(t)&&showSpan(t)&&startOf(t)<=sel0&&endOf(t)>sel0)(byDay[sel0]=byDay[sel0]||[]).push(t)});
+    for(let d=pd(from);ymd(d)<=to;d=addDays(d,1)){const k=ymd(d);if(offDay(t,k))continue;(byDay[k]=byDay[k]||[]).push(t)}});
+  const sel0=S.selDay||T;if(sel0<gs||sel0>ge)S.tasks.forEach(t=>{if(t.due&&!isHold(t)&&showSpan(t)&&startOf(t)<=sel0&&endOf(t)>sel0&&!offDay(t,sel0))(byDay[sel0]=byDay[sel0]||[]).push(t)});
   /* 기간 업무: 주(행)마다 같은 줄(lane)에 놓아 시작일~마감일을 한 막대로 잇습니다 */
   const chipColor=t=>isLate(t)?"var(--c-red)":cvar(stOf(t.status).color);
   const spans=S.tasks.filter(t=>t.due&&!isHold(t)&&showSpan(t)&&startOf(t)<=ge&&endOf(t)>=gs);
   let cells="";
   for(let w=new Date(start);w<=end;w=addDays(w,7)){
     const ws0=ymd(w),we0=ymd(addDays(w,6));
-    const segs=spans.filter(t=>startOf(t)<=we0&&endOf(t)>=ws0).map(t=>({t,a:startOf(t)>ws0?startOf(t):ws0,b:endOf(t)<we0?endOf(t):we0}))
+    const mon0=ymd(addDays(w,1)),fri0=ymd(addDays(w,5));
+    const segs=spans.filter(t=>startOf(t)<=we0&&endOf(t)>=ws0).map(t=>{const wd=hasWeekday(t),lo=wd?mon0:ws0,hi=wd?fri0:we0;return {t,a:startOf(t)>lo?startOf(t):lo,b:endOf(t)<hi?endOf(t):hi}}).filter(g=>g.a<=g.b)
       .sort((x,y)=>x.a.localeCompare(y.a)||y.b.localeCompare(x.b)||byDue(x.t,y.t));
     const lanes=[];segs.forEach(g=>{let l=lanes.findIndex(e=>e<g.a);if(l<0){l=lanes.length;lanes.push("")}lanes[l]=g.b;g.l=l});
     const nL=Math.min(lanes.length,3);
