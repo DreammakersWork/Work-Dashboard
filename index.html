@@ -240,17 +240,12 @@ a.btn.pri{color:var(--brand-ink)}
 .rt span{flex:1;min-width:0}
 .rt.on span{color:var(--muted);text-decoration:line-through}
 .links{display:flex;flex-direction:column}
+.weeknav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.weeknav b{font-weight:600;min-width:0}
 .links a{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
 .links a:first-child{border-top:0}
 .links a:hover{color:var(--brand)}
 .links a small{color:var(--faint);font-size:12px;white-space:nowrap}
-.weeknav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.weeknav b{font-weight:600;min-width:0}
-.repgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-.repgrid textarea{width:100%;min-height:420px;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:12px;font:inherit;font-size:13.5px;line-height:1.65;resize:vertical}
-.repgrid .rh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.repgrid .rh small{color:var(--muted)}
-.saved{font-size:12.5px;color:var(--muted)}
 .hero-d{font-size:13px;color:var(--muted);margin:0 0 2px;font-weight:500}
 .star{color:var(--accent);margin-right:3px}
 .sub{color:var(--faint);font-size:11.5px;margin-left:6px;font-weight:500}
@@ -325,7 +320,7 @@ a.btn.pri{color:var(--brand-ink)}
 .opt>small{color:var(--muted);font-size:12.5px;margin-top:-4px}
 .toggle{display:flex;align-items:center;gap:8px;font-size:13.5px}
 .confirm{background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;margin-top:10px}
-@media (max-width:980px){.repgrid,.setgrid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:980px){.setgrid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:760px){.row{grid-template-columns:24px 64px minmax(0,1fr)}.row .pill{grid-column:3}.mark .logo{display:none}}
 @media (max-width:640px){.cday{min-height:58px}.cday .chip,.cday .more{display:none}.dots{display:flex}.three{grid-template-columns:1fr 1fr}.three .fld:first-child{grid-column:1/-1}}
 </style>
@@ -651,7 +646,7 @@ window.FIREBASE_CONFIG = {
 (function(){
 const ME=(window.__WD_USER&&window.__WD_USER.name)||"사용자";
 const WD=["일","월","화","수","목","금","토"];
-const COLS=["projects","tasks","posts","reports","settings","rweeks","sheetweeks"];
+const COLS=["projects","tasks","posts","reports","settings","rweeks"];
 const LOGKINDS=["업무일지","회의록","메모"];
 /* ---- 아이콘 ---- */
 const ICONS={
@@ -688,11 +683,10 @@ const cvar=c=>`var(--c-${COLORS[c]?c:"gray"})`;
 const DEF_MENU=[
  {key:"home",label:"오늘",icon:"home",on:true,fixed:true},{key:"calendar",label:"캘린더",icon:"calendar",on:true},
  {key:"tasks",label:"업무 보드",icon:"board",on:true},{key:"projects",label:"담당 사업",icon:"folder",on:true},
- {key:"report",label:"주간업무보고",icon:"report",on:true},{key:"log",label:"업무일지",icon:"book",on:true},
+ {key:"log",label:"업무일지",icon:"book",on:true},
  {key:"me",label:"마이페이지",icon:"user",on:true},{key:"settings",label:"운영자 모드",icon:"gear",on:true,fixed:true}];
 const DEF_STATUSES=[{key:"예정",label:"예정",kind:"open",color:"gray"},{key:"진행중",label:"진행중",kind:"open",color:"blue"},{key:"완료",label:"완료",kind:"done",color:"green"},{key:"보류",label:"보류",kind:"hold",color:"orange"}];
 const DEF_PANELS={sched:true,routines:true,biz:true,links:true};
-const DEF_REPORT={bullet:"●",num:"1)",showStatus:true,extra:"기타사항",routines:true};
 const THEMES={
  works:{name:"웍스 그린 (기본)",b:"#00a84f",a:"#2b7cf6",bd:"#3ddc84",ad:"#7fb2ff"},
  teal:{name:"딥 틸",b:"#1f4e5f",a:"#d9822b",bd:"#7cc0d4",ad:"#f0a352"},
@@ -703,7 +697,7 @@ const THEMES={
  charcoal:{name:"차콜",b:"#2b2f33",a:"#c8414f",bd:"#c9d1d9",ad:"#f08090"}};
 const DEF_UI={theme:"works",custom:{b:"#00a84f",a:"#2b7cf6"},mode:"system",font:"normal",rail:"light",logo:"star",showUser:true,title:"업무 대시보드",subtitle:"드림메이커스 · 사업2팀 선임매니저"};
 
-const S={projects:[],tasks:[],posts:[],reports:[],settings:[],rweeks:[],sheetweeks:[],loaded:{},db:null,dl:null,err:"",view:"home",pid:null,ptab:"overview",fProj:"",fQ:"",fMine:false,fTag:"",wk:0,calM:0,selDay:"",stab:"design",draft:null,restore:null};
+const S={projects:[],tasks:[],posts:[],reports:[],settings:[],rweeks:[],loaded:{},db:null,dl:null,err:"",view:"home",pid:null,ptab:"overview",fProj:"",fQ:"",fMine:false,fTag:"",wk:0,calM:0,selDay:"",stab:"design",draft:null,restore:null};
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -737,7 +731,6 @@ function STS(){const s=(setting("ui").data||{}).statuses;return s&&s.length?s:DE
 function stOf(k){return STS().find(s=>s.key===k)||{key:k,label:k||"미정",kind:"open",color:"gray"}}
 function TAGS(){return (setting("ui").data||{}).tags||[]}
 function PANELS(){return Object.assign({},DEF_PANELS,(setting("ui").data||{}).panels||{})}
-function REP(){return Object.assign({},DEF_REPORT,(setting("ui").data||{}).report||{})}
 const DEF_PROFILE={name:ME,position:"",org:"드림메이커스",userId:"",phone:"",email:"",avatar:"account",icon:"star",photo:""};
 function PROFILE(){const p=Object.assign({},DEF_PROFILE,setting("profile").data||{});if(!p.name)p.name=ME;return p}
 async function saveProfile(patch){const cur=clone(setting("profile").data||{});Object.assign(cur,patch);try{await S.db.doc("settings/profile").set({data:cur})}catch(e){fail(e)}}
@@ -793,7 +786,7 @@ function applyUI(){
 }
 
 /* ---- 라우팅 ---- */
-const VIEWS=["home","calendar","tasks","projects","report","log","settings","me"];
+const VIEWS=["home","calendar","tasks","projects","log","settings","me"];
 function route(){const h=(location.hash||"").replace("#","");if(h.startsWith("p-")){S.view="project";S.pid=h.slice(2)}else S.view=VIEWS.includes(h)?h:"home";if(S.view!=="me")S.meOk=false;render()}
 addEventListener("hashchange",route);
 function navHtml(){
@@ -810,13 +803,12 @@ function render(){
   $("#nav").innerHTML=navHtml();
   const keep={};
   ["cText","cKind","cProj","qTitle","qDue","qTime","qProj","meLockPw"].forEach(id=>{const el=document.getElementById(id);if(el)keep[id]=el.value});
-  ["rRep","rPlan"].forEach(id=>{const el=document.getElementById(id);if(el&&el.dataset.wk===String(S.wk)&&el.dataset.dirty)keep[id]=el.value});
   const fa=document.activeElement&&document.activeElement.id;
   let html;
-  switch(S.view){case"home":html=vHome();break;case"calendar":html=vCal();break;case"tasks":html=vBoard();break;case"projects":html=vProjects();break;case"project":html=vProject();break;case"report":html=vReport();break;case"settings":html=vSettings();break;case"me":html=vMe();break;default:html=vLog()}
+  switch(S.view){case"home":html=vHome();break;case"calendar":html=vCal();break;case"tasks":html=vBoard();break;case"projects":html=vProjects();break;case"project":html=vProject();break;case"settings":html=vSettings();break;case"me":html=vMe();break;default:html=vLog()}
   m.innerHTML=html;
   if(S.view==="me"){if(meLocked()){const pi=$("#meLockPw");if(pi&&!fa)pi.focus()}else paintAvatar($("#meAv"))}
-  Object.entries(keep).forEach(([id,v])=>{const el=document.getElementById(id);if(el){el.value=v;if(id==="rRep"||id==="rPlan")el.dataset.dirty="1"}});
+  Object.entries(keep).forEach(([id,v])=>{const el=document.getElementById(id);if(el){el.value=v}});
   if(fa&&fa!=="fQ"){const el=document.getElementById(fa);if(el)el.focus()}
 }
 
@@ -887,7 +879,7 @@ function vHome(){
    pn.sched?`<section class="panel"><header><h2>다음 일정</h2><a class="btn sm" href="#calendar">캘린더</a></header><div class="list">${later.length||nodue.length?later.map(upItem).join("")+(nodue.length?`<div class="grp"><span>기한 없음</span><span>${nodue.length}</span></div>`+nodue.map(upItem).join(""):""):`<div class="empty">다음 주 이후 일정이 없습니다.</div>`}</div></section>`:"",
    pn.biz?`<section class="panel"><header><h2>담당 사업</h2><a class="btn sm" href="#projects">전체</a></header>${biz.length?`<div class="bgrid">${biz.map(bizCard).join("")}</div>`:`<div class="empty">진행 중인 사업이 없습니다.</div>`}</section>`:"",
    pn.links?`<section class="panel"><header><h2>바로가기</h2><button class="btn sm" data-act="editLinks">편집</button></header>${links.length?`<div class="lchips">${links.map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc((l.url.match(/\/\/([^/]+)/)||[])[1]||"")}">${esc(l.label)} <span aria-hidden="true">↗</span></a>`).join("")}</div>`:`<div class="empty">자주 여는 문서 주소를 편집에서 등록하세요.</div>`}</section>`:""].filter(Boolean);
-  return `<div class="head"><div><p class="hero-d">${esc(PROFILE().name)}${PROFILE().position?" "+esc(PROFILE().position):""}님 · ${NOW.getMonth()+1}월 ${NOW.getDate()}일 ${WD[NOW.getDay()]}요일 · ${weekLabel(wkStart(0))}</p><h1>오늘 할 일</h1></div><a class="btn" href="#report">주간보고 작성</a></div>
+  return `<div class="head"><div><p class="hero-d">${esc(PROFILE().name)}${PROFILE().position?" "+esc(PROFILE().position):""}님 · ${NOW.getMonth()+1}월 ${NOW.getDate()}일 ${WD[NOW.getDay()]}요일 · ${weekLabel(wkStart(0))}</p><h1>오늘 할 일</h1></div></div>
   <form class="quick" id="quickForm">
     <input id="qTitle" type="text" placeholder="새 할 일을 입력하고 Enter" aria-label="새 할 일" autocomplete="off">
     <input id="qDue" type="date" aria-label="마감일"><input id="qTime" type="time" aria-label="시간 (선택)">
@@ -1042,49 +1034,6 @@ function vProject(){
   <div class="stack">${body}</div>`;
 }
 
-/* ---- 주간업무보고 ---- */
-/* 시트 연동: Apps Script 웹 앱을 script 태그로 불러옵니다(JSONP). 회사 계정 전용 배포도 로그인돼 있으면 됩니다 */
-function sheetJsonp(url,week){return new Promise((ok,no)=>{
-  const cb="__wdSheet"+Date.now().toString(36),sc=document.createElement("script");let done=false;
-  const end=()=>{done=true;clearTimeout(tm);delete window[cb];sc.remove()};
-  const tm=setTimeout(()=>{if(!done){end();no(new Error("응답이 없습니다. 주소가 맞는지, 브라우저가 회사 구글 계정으로 로그인돼 있는지 확인해 주세요"))}},15000);
-  window[cb]=d=>{end();ok(d||{})};
-  const bad=()=>{if(!done){end();no(new Error("시트에 접근하지 못했습니다. 이 브라우저에 회사 구글 계정(dreammakers.or.kr)으로 로그인돼 있는지 확인해 주세요. 계정이 여러 개면 시크릿 창에서 회사 계정으로만 로그인해 보세요"))}};
-  sc.onerror=bad;sc.onload=()=>setTimeout(bad,50);
-  sc.src=url+(url.includes("?")?"&":"?")+"week="+encodeURIComponent(week)+"&callback="+cb;document.head.appendChild(sc)})}
-function numFmt(style,i){if(style==="가."){const K="가나다라마바사아자차카타파하";return (K[i]||String(i+1))+"."}if(style==="-"||style==="•")return style;return (i+1)+")"}
-function genReport(off){
-  /* 시트 양식과 같게: 업무 보고 = 지난주(s-7 ~ s-1), 업무 계획 = 이번 주(s ~ s+6) */
-  const R=REP();const s=wkStart(off),S1=ymd(addDays(s,-7)),E1=ymd(addDays(s,-1)),E2=ymd(addDays(s,6));
-  const mine=t=>!t.assignee||t.assignee===ME;
-  const group=f=>{const by={};S.tasks.filter(f).forEach(t=>{const k=t.projectId&&proj(t.projectId)?t.projectId:"";(by[k]=by[k]||[]).push(t)});return by};
-  const rep=group(t=>{if(!mine(t)||isHold(t))return false;if(isDone(t)){const c=t.completedAt?ymd(new Date(t.completedAt)):"";return c>=S1&&c<=E1}return stOf(t.status).key===(STS().filter(x=>x.kind==="open")[1]||{}).key||(t.due&&t.due>=S1&&t.due<=E1)});
-  const plan=group(t=>mine(t)&&isOpen(t)&&((t.due&&t.due<=E2)||stOf(t.status).key===(STS().filter(x=>x.kind==="open")[1]||{}).key));
-  const order=[...S.projects.filter(p=>p.kind!=="영역"),...S.projects.filter(p=>p.kind==="영역")].map(p=>p.id).concat([""]);
-  const fmt=(by,mode)=>{const out=[];order.forEach(pid=>{const ts=by[pid];if(!ts||!ts.length)return;const p=proj(pid);out.push(R.bullet+" "+(p?p.name:"기타 업무"));
-    ts.sort(byDue).forEach((t,i)=>{let tail="";if(mode==="rep"){if(R.showStatus)tail=isDone(t)?(isLateDone(t)?" - 완료("+lateDays(t)+"일 지연)":" - 완료"):" - "+stOf(t.status).label}else tail=t.due?(hasSpan(t)?" "+spanStr(t):" ~ "+fmtMD(t.due))+(t.time?" "+timeStr(t):""):"";out.push("  "+numFmt(R.num,i)+" "+t.title+tail)});out.push("")});return out};
-  const routines=setting("routines").items||[];const rw=(S.rweeks.find(x=>x.id===S1)||{}).done||{};
-  const r1=fmt(rep,"rep");const r2=fmt(plan,"plan");
-  if(R.routines){const dr=routines.filter(r=>rw[r]);if(dr.length){r1.push(R.bullet+" 정기 업무");dr.forEach((r,i)=>r1.push("  "+numFmt(R.num,i)+" "+r));r1.push("")}
-    if(routines.length){r2.push(R.bullet+" 정기 업무");routines.forEach((r,i)=>r2.push("  "+numFmt(R.num,i)+" "+r));r2.push("")}}
-  if(R.extra){r1.push(R.bullet+" "+R.extra);r2.push(R.bullet+" "+R.extra)}
-  return {report:r1.join("\n"),plan:r2.join("\n")};
-}
-function vReport(){
-  const n=wkStart(S.wk),s=addDays(n,-7),key=ymd(n);const saved=S.reports.find(r=>r.id===key);
-  /* 처음 내용: 저장한 보고서 → (이번 주만) 시트에서 받은 내용 → 빈칸. 다른 주는 '시트에서 불러오기'·'업무 기준으로 다시 채우기' 버튼으로 */
-  const sw=S.wk===0?S.sheetweeks.find(y=>y.id===ymd(s)):null;const g=saved||(sw?{report:sw.report||"",plan:sw.plan||""}:{report:"",plan:""});
-  return `<div class="head"><div><h1>${esc(mlabel("report"))}</h1><p>업무 보드와 정기 업무를 바탕으로 초안을 만듭니다. 고친 뒤 복사해서 주간업무보고 시트에 붙여 넣으세요.</p></div><a class="btn" href="#settings" data-stab="report">양식 설정</a></div>
-  <div class="panel" style="margin-bottom:16px"><div class="weeknav" style="justify-content:space-between">
-    <div class="weeknav"><button class="btn sm" data-wk="-1" aria-label="이전 주">←</button><b>${n.getFullYear()}년 ${weekLabel(s)} 보고 · ${weekLabel(n)} 계획</b><button class="btn sm" data-wk="1" aria-label="다음 주">→</button>${S.wk!==0?`<button class="btn sm" data-wk="0">이번 주로</button>`:""}</div>
-    <div class="weeknav"><span class="saved">${saved?"저장됨 "+fmtTs(saved.savedAt):sw?"시트 내용 · 저장 전":"비어 있음"}</span><button class="btn sm" data-act="loadSheet">시트에서 불러오기</button><button class="btn sm" data-act="regen">업무 기준으로 다시 채우기</button><button class="btn pri sm" data-act="saveReport">저장</button></div>
-  </div></div>
-  <div class="repgrid">
-    <section class="panel"><div class="rh"><div><h2>업무 보고</h2><small>${weekLabel(s)} · ${rangeLabel(s)}</small></div><button class="btn sm" data-copy="rRep">복사</button></div><textarea id="rRep" data-wk="${S.wk}" aria-label="업무 보고">${esc(g.report)}</textarea></section>
-    <section class="panel"><div class="rh"><div><h2>업무 계획</h2><small>${weekLabel(n)} · ${rangeLabel(n)}</small></div><button class="btn sm" data-copy="rPlan">복사</button></div><textarea id="rPlan" data-wk="${S.wk}" aria-label="업무 계획">${esc(g.plan)}</textarea></section>
-  </div>`;
-}
-
 /* ---- 업무일지 ---- */
 function vLog(){
   const posts=[...S.posts].filter(x=>!S.fProj||x.projectId===S.fProj).sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
@@ -1099,9 +1048,9 @@ function vLog(){
 
 /* ---- 운영자 모드 ---- */
 function vSettings(){
-  const tabs=[["design","디자인"],["menu","메뉴·화면"],["status","상태·태그"],["report","보고서 양식"],["data","사업·바로가기"],["backup","백업·복원"]];
+  const tabs=[["design","디자인"],["menu","메뉴·화면"],["status","상태·태그"],["data","사업·바로가기"],["backup","백업·복원"]];
   let body="";
-  if(S.stab==="design")body=sDesign();else if(S.stab==="menu")body=sMenu();else if(S.stab==="status")body=sStatus();else if(S.stab==="report")body=sReport();else if(S.stab==="data")body=sData();else body=sBackup();
+  if(S.stab==="design")body=sDesign();else if(S.stab==="menu")body=sMenu();else if(S.stab==="status")body=sStatus();else if(S.stab==="data")body=sData();else body=sBackup();
   return `<div class="head"><div><h1>${esc(mlabel("settings"))}</h1><p>대시보드의 모양과 구성을 직접 바꿉니다. 바꾼 내용은 바로 저장되고 다른 기기에서도 똑같이 보입니다.</p></div></div>
   <div class="set-nav">${tabs.map(([k,l])=>`<button type="button" data-stab="${k}" class="${S.stab===k?"on":""}">${l}</button>`).join("")}</div>${body}`;
 }
@@ -1148,20 +1097,6 @@ function sStatus(){
     <p class="muted" style="font-size:12.5px;margin:0 0 8px">업무에 보고, 행사, 정산 같은 꼬리표를 붙여 업무 보드에서 골라 볼 수 있습니다.</p>
     ${tags.length?tags.map((g,i)=>`<div class="srow" style="grid-template-columns:minmax(0,1fr) auto"><div class="mid" style="flex-direction:column;align-items:stretch"><input type="text" id="tg-${i}" value="${esc(g.name)}" data-tagname="${i}" aria-label="태그 이름">${sw("data-tagcolor",i,g.color)}</div><div class="ctl"><button type="button" class="btn ghost sm" data-tagdel="${i}">삭제</button></div></div>`).join(""):`<div class="empty">아직 태그가 없습니다.</div>`}
   </section></div>`;
-}
-function sReport(){
-  const R=REP();
-  return `<div class="setgrid"><section class="panel"><header><h2>주간업무보고 양식</h2></header>
-    <div class="opt"><b>사업 머리 기호</b><div class="seg2">${["●","■","◎","▶"].map(v=>`<button type="button" data-rep="bullet" data-v="${v}" class="${R.bullet===v?"on":""}">${v}</button>`).join("")}</div></div>
-    <div class="opt"><b>항목 번호</b><div class="seg2">${["1)","가.","-","•"].map(v=>`<button type="button" data-rep="num" data-v="${v}" class="${R.num===v?"on":""}">${v}</button>`).join("")}</div></div>
-    <div class="opt"><b>업무 보고에 진행 상태 붙이기</b><label class="toggle"><input type="checkbox" data-repcheck="showStatus" ${R.showStatus?"checked":""}> "- 완료", "- 진행중" 표시</label></div>
-    <div class="opt"><b>정기 업무 포함</b><label class="toggle"><input type="checkbox" data-repcheck="routines" ${R.routines?"checked":""}> 정기 업무 체크 기록을 보고서에 넣기</label></div>
-    <div class="opt"><b>주간업무보고 시트 동기화</b><small>시트 쪽 Apps Script(저장소 apps-script/weekly-report.gs)가 1시간마다 내 칸(업무 보고·업무 계획)을 이 대시보드로 보내 줍니다. 주간업무보고 화면의 '시트에서 불러오기'를 누르면 받은 내용이 채워집니다.</small><span>${(()=>{const l=S.sheetweeks.map(y=>y.syncedAt||"").sort().pop();return l?"마지막 동기화 "+fmtTs(l)+" · 받은 주 "+S.sheetweeks.length+"개":"아직 받은 내용이 없습니다"})()}</span></div>
-    <div class="opt"><b>시트 연동 주소 (선택)</b><small>동기화 대신 Apps Script 웹 앱으로 직접 불러올 때만 넣습니다. 비워 두어도 됩니다.</small><input type="url" value="${esc(R.sheetUrl||"")}" data-reptext="sheetUrl" placeholder="https://script.google.com/macros/s/…/exec" style="border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:7px 10px" aria-label="시트 연동 주소"></div>
-    <div class="opt"><b>마지막 칸 이름</b><small>비워 두면 넣지 않습니다.</small><input type="text" id="repExtra" value="${esc(R.extra)}" data-reptext="extra" style="border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:7px 10px" aria-label="마지막 칸 이름"></div>
-  </section>
-  <section class="panel"><header><h2>미리보기 (이번 주에 제출할 업무 보고 · 지난주 내용)</h2></header><pre style="white-space:pre-wrap;margin:0;font:inherit;font-size:13px;line-height:1.65;overflow-wrap:anywhere">${esc(genReport(0).report)}</pre>
-   <p class="muted" style="font-size:12.5px">이미 저장한 주의 보고서는 바뀌지 않습니다. 주간업무보고 화면에서 "업무 기준으로 다시 채우기"를 누르면 새 양식이 적용됩니다.</p></section></div>`;
 }
 function sData(){
   return `<div class="setgrid"><section class="panel"><header><h2>사업·영역</h2><button class="btn sm" data-act="newProject">추가</button></header>
@@ -1371,23 +1306,6 @@ document.addEventListener("click",async e=>{
     else if(k==="quickMore")taskDlg(null,$("#qProj").value,$("#qDue").value,{title:$("#qTitle").value.trim(),time:$("#qTime").value});
     else if(k==="newProject")projectDlg();else if(k==="editProject")projectDlg(proj(S.pid));else if(k==="addOutput")outputDlg(proj(S.pid));
     else if(k==="editRoutines")routinesDlg();else if(k==="editLinks")linksDlg();
-    else if(k==="loadSheet"){const url=(REP().sheetUrl||"").trim();const wk=S.wk,key=ymd(addDays(wkStart(wk),-7));
-      const sw=S.sheetweeks.find(y=>y.id===key);
-      if(sw){$("#rRep").value=sw.report||"";$("#rPlan").value=sw.plan||"";$("#rRep").dataset.dirty=$("#rPlan").dataset.dirty="1";
-        toast("'"+(sw.sheet||"시트")+"' 내용을 넣었습니다 ("+fmtTs(sw.syncedAt)+" 동기화). 저장해야 남습니다",6000);return}
-      if(S.sheetweeks.length||!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)){
-        const lastSync=S.sheetweeks.map(y=>y.syncedAt||"").sort().pop();
-        toast(lastSync?"업무 보고 "+fmtMD(key)+" ~ / 업무 계획 "+fmtMD(ymd(wkStart(wk)))+" ~ 인 시트 탭은 아직 받지 못했습니다. 시트에 그 탭이 생기면 1시간 안에 들어옵니다 (마지막 동기화 "+fmtTs(lastSync)+")":"아직 시트에서 받은 내용이 없습니다. 시트 동기화 스크립트를 설치해 주세요 (운영자 모드 > 보고 양식 참고)",9000);return}
-      x.disabled=true;
-      try{const d=await sheetJsonp(url,key);
-        if(d.error)throw new Error((d.sheet?"["+d.sheet+"] ":"")+d.error);
-        if(S.view!=="report"||S.wk!==wk)return;
-        $("#rRep").value=d.report||"";$("#rPlan").value=d.plan||"";$("#rRep").dataset.dirty=$("#rPlan").dataset.dirty="1";
-        toast("'"+d.sheet+"' 시트에서 불러왔습니다. 저장해야 남습니다")}
-      catch(err){toast("불러오지 못했습니다: "+(err&&err.message||err),9000)}
-      finally{x.disabled=false}}
-    else if(k==="regen"){const r=genReport(S.wk);$("#rRep").value=r.report;$("#rPlan").value=r.plan;$("#rRep").dataset.dirty=$("#rPlan").dataset.dirty="1";toast("업무 보드 기준으로 다시 채웠습니다. 저장해야 남습니다")}
-    else if(k==="saveReport"){try{await S.db.doc("reports/"+ymd(wkStart(S.wk))).set({report:$("#rRep").value,plan:$("#rPlan").value,savedAt:nowIso()});["rRep","rPlan"].forEach(id=>delete $("#"+id).dataset.dirty);toast("저장했습니다")}catch(err){fail(err)}}
     else if(k==="menuReset")await saveUI({menu:[]});
     else if(k==="addStatus"){const sts=clone(STS());let n=1;while(sts.find(s=>s.key==="새 상태"+n))n++;sts.splice(sts.length-1,0,{key:"새 상태"+n,label:"새 상태"+n,kind:"open",color:"purple"});await saveStatuses(sts)}
     else if(k==="addTag"){const tags=clone(TAGS());let n=1;while(tags.find(t=>t.name==="태그"+n))n++;tags.push({name:"태그"+n,color:"teal"});await saveUI({tags})}
@@ -1397,13 +1315,10 @@ document.addEventListener("click",async e=>{
   if(x=g("data-check")){const t=S.tasks.find(y=>y.id===x.dataset.check);if(t)await toggleDone(t);return}
   if(x=g("data-cal")){S.calM=x.dataset.cal==="0"?0:S.calM+Number(x.dataset.cal);S.selDay="";render();return}
   if(x=g("data-routine")){const key=ymd(wkStart(0));const cur={...((S.rweeks.find(y=>y.id===key)||{}).done||{})};const r=x.dataset.routine;if(cur[r])delete cur[r];else cur[r]=true;try{await S.db.doc("rweeks/"+key).set({done:cur})}catch(err){fail(err)}return}
-  if(x=g("data-wk")){S.wk=x.dataset.wk==="0"?0:S.wk+Number(x.dataset.wk);render();return}
-  if(x=g("data-copy")){const ta=$("#"+x.dataset.copy);try{await navigator.clipboard.writeText(ta.value);toast("복사했습니다")}catch(err){ta.focus();ta.select();toast("선택했습니다. Ctrl+C로 복사하세요")}return}
   /* 운영자 모드 */
   if(x=g("data-prof")){await saveProfile({[x.dataset.prof]:x.dataset.v});return}
   if(x=g("data-theme-pick")){await saveUI({theme:x.dataset.themePick});return}
   if(x=g("data-ui")){await saveUI({[x.dataset.ui]:x.dataset.v});return}
-  if(x=g("data-rep")){await saveUI({report:Object.assign(REP(),{[x.dataset.rep]:x.dataset.v})});return}
   if(x=g("data-iconfor")){pickIconDlg(x.dataset.iconfor);return}
   if(x=g("data-mmove")){const menu=MENU();const i=+x.dataset.mmove,j=i+Number(x.dataset.d);[menu[i],menu[j]]=[menu[j],menu[i]];await saveUI({menu:menu.map(({key,label,icon,on})=>({key,label,icon,on}))});return}
   if(x=g("data-smove")){const sts=clone(STS());const i=+x.dataset.smove,j=i+Number(x.dataset.d);[sts[i],sts[j]]=[sts[j],sts[i]];await saveStatuses(sts);return}
@@ -1437,14 +1352,11 @@ document.addEventListener("change",async e=>{
   else if(ds.stkind!=null){const sts=clone(STS());sts[+ds.stkind].kind=el.value;if(!sts.some(s=>s.kind==="open")||!sts.some(s=>s.kind==="done")){toast("'진행'과 '완료' 종류가 하나씩은 있어야 합니다");render();return}await saveStatuses(sts)}
   else if(ds.tagname!=null){const tags=clone(TAGS());const old=tags[+ds.tagname].name,v=el.value.trim();if(!v||tags.some((t,i)=>t.name===v&&i!==+ds.tagname)){toast("비어 있거나 겹치는 이름입니다");render();return}tags[+ds.tagname].name=v;await saveUI({tags});
     for(const t of S.tasks.filter(t=>(t.tags||[]).includes(old))){try{await S.db.doc("tasks/"+t.id).update({tags:t.tags.map(n=>n===old?v:n)})}catch(err){}}}
-  else if(ds.repcheck){await saveUI({report:Object.assign(REP(),{[ds.repcheck]:el.checked})})}
-  else if(ds.reptext){await saveUI({report:Object.assign(REP(),{[ds.reptext]:el.value.trim()})})}
   else if(el.id==="restoreFile"&&el.files[0]){const f=el.files[0];try{const data=JSON.parse(await f.text());if(!data||!data.collections)throw 0;
       S.restore={name:f.name,at:data.exportedAt,data,summary:COLS.map(c=>c+" "+((data.collections[c]||[]).length)+"건").join(" · ")};render()}catch(err){toast("백업 파일을 읽을 수 없습니다. 이 대시보드에서 받은 JSON 파일인지 확인하세요")}}
 });
 document.addEventListener("input",e=>{
   if(e.target.id==="fQ"){S.fQ=e.target.value;const pos=e.target.selectionStart;render();const i=$("#fQ");if(i){i.focus();i.setSelectionRange(pos,pos)}}
-  if(e.target.id==="rRep"||e.target.id==="rPlan")e.target.dataset.dirty="1";
 });
 document.addEventListener("submit",async e=>{
   if(e.target.id==="meLockForm"){e.preventDefault();const pw=$("#meLockPw").value,msg=$("#meLockMsg"),go=$("#meLockGo");
